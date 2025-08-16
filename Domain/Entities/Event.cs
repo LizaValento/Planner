@@ -5,10 +5,9 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static Microsoft.Extensions.Logging.EventSource.LoggingEventSource;
 using System.Xml.Linq;
 
-namespace Data.Entities
+namespace Domain.Entities
 {
     public class Event
     {

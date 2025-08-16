@@ -1,7 +1,7 @@
-﻿using Data.Entities;
+﻿using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace Data.Context
+namespace Data.Data.Context
 {
     public class EventContext : DbContext
     {
@@ -50,8 +50,8 @@ namespace Data.Context
                 entity.HasOne<User>()
                     .WithMany()
                     .HasForeignKey(ep => ep.UserId);
-                entity.HasOne<Event>()             
-                    .WithMany()                      
+                entity.HasOne<Event>()
+                    .WithMany()
                     .HasForeignKey(ep => ep.EventId);
                 entity.Property(ep => ep.IsOrganizer);
                 entity.HasIndex(ep => new { ep.EventId, ep.UserId })

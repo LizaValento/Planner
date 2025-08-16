@@ -1,5 +1,4 @@
-﻿using Data.Context;
-using Data.Entities;
+﻿using Data.Entities;
 using System.IdentityModel.Tokens.Jwt;
 using Business.Models;
 using Microsoft.EntityFrameworkCore;
@@ -11,6 +10,7 @@ using Azure.Core;
 using Microsoft.AspNetCore.Http;
 using Business.Service.Interfaces;
 using System;
+using Data.Data.Context;
 
 namespace Business.Service.Classes
 {
@@ -147,24 +147,6 @@ namespace Business.Service.Classes
                 }
             }
         }
-
-
-        public async Task<bool> VerifyPasswordAsync(UserModel user, string password)
-        {
-            var storedPassword = user.Password;
-
-            return await Task.Run(() => string.Equals(password, storedPassword));
-        }
-
-        public int GetUserByToken(HttpContext httpContext)
-        {
-            var token = httpContext.Request.Cookies["jwt"];
-            var handler = new JwtSecurityTokenHandler();
-            var jwtSecurityToken = handler.ReadJwtToken(token);
-            string id = jwtSecurityToken.Claims.FirstOrDefault(c => c.Type == "nameid")?.Value;
-            return int.Parse(id);
-        }
-
     }
 }
 

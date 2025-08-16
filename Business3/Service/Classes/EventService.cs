@@ -1,5 +1,4 @@
-﻿using Data.Context;
-using Data.Entities;
+﻿using Data.Entities;
 using System.IdentityModel.Tokens.Jwt;
 using Business.Models;
 using Microsoft.EntityFrameworkCore;
@@ -11,6 +10,7 @@ using Azure.Core;
 using Microsoft.AspNetCore.Http;
 using Business.Service.Interfaces;
 using System;
+using Data.Data.Context;
 
 namespace Business.Service.Classes
 {
