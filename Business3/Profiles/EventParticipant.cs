@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
-using Business.Models;
-using Data.Entities;
+using Application.DTOs;
+using Domain.Entities;
 
 namespace Business.Profiles
 {

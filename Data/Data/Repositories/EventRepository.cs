@@ -1,92 +1,58 @@
 ﻿using Domain.Interfaces.InterfacesForRepositories;
-using Data.Data.LibraryContext;
+using Data.Data.Context;
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Data.Data.Repositories
 {
-    public class BookRepository : IBookRepository
+    public class EventRepository : IEventRepository
     {
-        private readonly Context _context;
+        private readonly EventContext _context;
 
-        public BookRepository(Context context)
+        public EventRepository(EventContext context)
         {
             _context = context;
         }
 
-        public Book GetById(int id)
+        public Event GetById(int id)
         {
-            return _context.Books
-                .Include(b => b.Author)
+            return _context.Events
+                .Include(x => x.EventParticipants)
                 .FirstOrDefault(c => c.Id == id);
         }
 
-        public void Add(Book Book)
+        public async Task<Event> GetByIdAsync(int id)
         {
-            _context.Books.Add(Book);
+            return await _context.Events
+                .Include(x => x.EventParticipants)
+                .FirstOrDefaultAsync(c => c.Id == id);
         }
 
-        public IEnumerable<Book> GetAll()
+        public void Add(Event Event)
         {
-            return _context.Books
-                .Include(b => b.Author)
-                .ToList();
+            _context.Events.Add(Event);
         }
 
-        public IEnumerable<Book> GetFreeBooks()
+        public IEnumerable<Event> GetAll()
         {
-            return _context.Books
-                .Include(b => b.Author)
-                .Where(b => b.UserId == null)
-                .ToList();
+            return _context.Events.ToList();
         }
 
-        public void Update(Book Book)
+        public async Task<IEnumerable<Event>> GetAllAsync()
         {
-            _context.Books.Update(Book);
+            return await _context.Events
+                .Include(x => x.EventParticipants)
+                .ToListAsync();
         }
 
-        public void Remove(Book Book)
+        public void Update(Event Event)
         {
-            _context.Books.Remove(Book);
+            _context.Events.Update(Event);
         }
 
-        public IEnumerable<Book> GetBooksByAuthorId(int authorId)
+        public void Remove(Event Event)
         {
-            return _context.Books
-                .Where(b => b.AuthorId == authorId)
-                .ToList();
-        }
-
-        public IEnumerable<Book> GetBooksByGenre(string genre)
-        {
-            return _context.Books
-                .Where(b => b.Genre == genre)
-                .Include(b => b.Author)
-                .ToList();
-        }
-
-        public IEnumerable<Book> GetAllWithTitles(string title)
-        {
-            return _context.Books
-                .Where(b => b.Name == title)
-                .Include(b => b.Author)
-                .ToList();
-        }
-
-        public Book GetByISBN(string isbn)
-        {
-            return _context.Books
-                .Include(b => b.Author)
-                .FirstOrDefault(c => c.ISBN == isbn);
-        }
-
-        public IEnumerable<Book> GetBooksByAuthorNameAndLastName(string firstName, string lastName)
-        {
-            return _context.Books
-               .Include(b => b.Author)
-               .Where(b => b.Author.FirstName == firstName && b.Author.LastName == lastName)
-               .ToList();
+            _context.Events.Remove(Event);
         }
     }
 }

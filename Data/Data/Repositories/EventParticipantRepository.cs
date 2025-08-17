@@ -1,71 +1,61 @@
 ﻿using Domain.Interfaces.InterfacesForRepositories;
-using Data.Data.LibraryContext;
+using Data.Data.Context;
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Data.Data.Repositories
 {
-    public class AuthorRepository : IAuthorRepository
+    public class EventParticipantRepository : IEventParticipantRepository
     {
-        private readonly Context _context;
+        private readonly EventContext _context;
 
-        public AuthorRepository(Context context)
+        public EventParticipantRepository(EventContext context)
         {
             _context = context;
         }
 
-        public Author GetById(int id)
+        public EventParticipant GetById(int id)
         {
-            return _context.Authors
-                .Include(x => x.Books)
-                .FirstOrDefault(c => c.Id == id);
+            return _context.EventParticipants
+                .Include(ep => ep.User)
+                .Include(u => u.Event)
+                .FirstOrDefault(ep => ep.Id == id);
         }
 
-        public void Add(Author Author)
+        public async Task<EventParticipant> GetByIdAsync(int id)
         {
-            _context.Authors.Add(Author);
+            return await _context.EventParticipants
+                .Include(ep => ep.User)
+                .Include(u => u.Event)
+                .FirstOrDefaultAsync(c => c.Id == id);
         }
 
-        public IEnumerable<Author> GetAll()
+        public void Add(EventParticipant EventParticipant)
         {
-            return _context.Authors.ToList();
+            _context.EventParticipants.Add(EventParticipant);
         }
 
-        public void Update(Author Author)
+        public IEnumerable<EventParticipant> GetAll()
         {
-            _context.Authors.Update(Author);
+            return _context.EventParticipants.ToList();
         }
 
-        public void Remove(Author Author)
+        public async Task<IEnumerable<EventParticipant>> GetAllAsync()
         {
-            _context.Authors.Remove(Author);
+            return await _context.EventParticipants
+                .Include(ep => ep.User)
+                .Include(u => u.Event)
+                .ToListAsync();
         }
 
-        public async Task<int> GetOrCreateAuthorAsync(string firstName, string lastName)
+        public void Update(EventParticipant EventParticipant)
         {
-            var author = await _context.Authors
-                .FirstOrDefaultAsync(a => a.FirstName.ToLower() == firstName.ToLower() &&
-                                           a.LastName.ToLower() == lastName.ToLower());
-
-            if (author != null)
-            {
-                return author.Id;
-            }
-
-            author = new Author
-            {
-                FirstName = firstName,
-                LastName = lastName,
-                Country = "Не указано",
-                DateOfBirth = new DateTime(2000, 1, 1)
-            };
-
-            _context.Authors.Add(author);
-            await _context.SaveChangesAsync();
-
-            return author.Id;
+            _context.EventParticipants.Update(EventParticipant);
         }
 
+        public void Remove(EventParticipant EventParticipant)
+        {
+            _context.EventParticipants.Remove(EventParticipant);
+        }
     }
 }
-

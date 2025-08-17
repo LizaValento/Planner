@@ -1,6 +1,6 @@
-﻿using Data.Entities;
+﻿using Domain.Entities;
 
-namespace Business.Models
+namespace Application.DTOs
 {
     public class UserModel
     {

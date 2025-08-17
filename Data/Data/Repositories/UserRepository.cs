@@ -1,5 +1,5 @@
 ﻿using Domain.Interfaces.InterfacesForRepositories;
-using Data.Data.LibraryContext;
+using Data.Data.Context;
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
@@ -7,9 +7,9 @@ namespace Data.Data.Repositories
 {
     public class UserRepository : IUserRepository
     {
-        private readonly Context _context;
+        private readonly EventContext _context;
 
-        public UserRepository(Context context)
+        public UserRepository(EventContext context)
         {
             _context = context;
         }
@@ -17,23 +17,15 @@ namespace Data.Data.Repositories
         public User GetById(int id)
         {
             return _context.Users
-                .Include(x => x.Books)
-                .ThenInclude(b => b.Author)
+                .Include(x => x.EventParticipants)
                 .FirstOrDefault(c => c.Id == id);
         }
 
         public async Task<User> GetByIdAsync(int id)
         {
             return await _context.Users
-                .Include(x => x.Books)
-                    .ThenInclude(b => b.Author)
+                .Include(x => x.EventParticipants)
                 .FirstOrDefaultAsync(c => c.Id == id);
-        }
-
-
-        public User GetByNickname(string nickname)
-        {
-            return _context.Users.FirstOrDefault(u => u.Nickname == nickname);
         }
 
         public void Add(User user)
@@ -46,6 +38,13 @@ namespace Data.Data.Repositories
             return _context.Users.ToList();
         }
 
+        public async Task<IEnumerable<User>> GetAllAsync()
+        {
+            return await _context.Users
+                .Include(x => x.EventParticipants)
+                .ToListAsync();
+        }
+
         public void Update(User user)
         {
             _context.Users.Update(user);
@@ -54,20 +53,6 @@ namespace Data.Data.Repositories
         public void Remove(User user)
         {
             _context.Users.Remove(user);
-        }
-
-        public (List<Book> Books, int TotalCount) GetUserBooks(int userId, int page, int pageSize)
-        {
-            var books = _context.Books
-                .Where(b => b.UserId == userId)
-                .Include(b => b.Author)
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
-                .ToList();
-
-            var totalCount = _context.Books.Count(b => b.UserId == userId);
-
-            return (books, totalCount);
         }
     }
 }
