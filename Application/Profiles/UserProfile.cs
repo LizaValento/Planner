@@ -2,7 +2,7 @@
 using Application.DTOs;
 using Domain.Entities;
 
-namespace Business.Profiles
+namespace Application.Profiles
 {
     public class UserProfile : Profile
     {
