@@ -2,6 +2,7 @@
 using Application.DTOs;
 using Domain.Entities;
 using Domain.Interfaces.InterfacesForUOW;
+using Application.UseCases.Interfaces;
 
 namespace Application.UseCases.Classes
 {

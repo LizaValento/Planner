@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
-using Application.DTOs;         
+using Application.DTOs;
+using Application.UseCases.Interfaces;
 using Domain.Entities;
 using Domain.Interfaces.InterfacesForUOW;
 

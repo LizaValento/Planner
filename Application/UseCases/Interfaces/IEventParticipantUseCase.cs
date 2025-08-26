@@ -1,6 +1,6 @@
 ﻿using Application.DTOs;
 
-namespace Application.UseCases
+namespace Application.UseCases.Interfaces
 {
     public interface IEventParticipantUseCase
     {
