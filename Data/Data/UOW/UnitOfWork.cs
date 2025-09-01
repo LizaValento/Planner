@@ -11,6 +11,7 @@ namespace Data.UOW
         public IUserRepository Users { get; private set; }
         public IEventRepository Events { get; private set; }
         public IEventParticipantRepository EventParticipants { get; private set; }
+        public IRefreshTokenRepository RefreshTokens { get; private set; }
 
         public UnitOfWork(EventContext context)
         {
@@ -18,6 +19,7 @@ namespace Data.UOW
             Users = new UserRepository(_context);
             Events = new EventRepository(_context);
             EventParticipants = new EventParticipantRepository(_context);
+            RefreshTokens = new RefreshTokenRepository(_context);
         }
 
         public UnitOfWork(EventContext context, IUserRepository userRepository, IEventRepository eventRepository, IEventParticipantRepository eventParticipantRepository)

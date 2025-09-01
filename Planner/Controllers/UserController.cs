@@ -28,5 +28,10 @@ namespace Presentation.Controllers
         {
             return View();
         }
+
+        public ViewResult Main()
+        {
+            return View();
+        }
     }
 }

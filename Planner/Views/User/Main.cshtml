@@ -1,0 +1,18 @@
+﻿@model EventModel
+@using Application.DTOs
+@using Microsoft.AspNetCore.Authorization
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+
+@if (HttpContextAccessor.HttpContext.User.Identity.IsAuthenticated)
+{
+    <form action="@Url.Action("Logout", "Account")" method="post">
+        @Html.AntiForgeryToken()
+        <input type="submit" value="Выход" />
+    </form>
+}
+else
+{
+    <a href="@Url.Action("Login", "Account")">Авторизация</a>
+    <a href="@Url.Action("Register", "Account")">Регистрация</a>
+}
+

@@ -59,6 +59,16 @@ namespace Data.Data.Context
                 entity.HasIndex(ep => new { ep.EventId, ep.UserId })
                     .IsUnique();
             });
+
+            modelBuilder.Entity<RefreshToken>(entity =>
+            {
+                entity.HasKey(rt => rt.Id);
+                entity.Property(rt => rt.Token).IsRequired(false); // можно null
+                entity.Property(rt => rt.ExpiresAt);
+                entity.Property(rt => rt.UserId); // без связей, обычное поле
+            });
+
+
         }
     }
 }

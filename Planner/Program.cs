@@ -71,6 +71,12 @@ builder.Services.AddLogging(config =>
     config.AddDebug();
 });
 
+builder.Services.AddDbContext<EventContext>(options =>
+    options.UseSqlServer(
+        builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddControllersWithViews();
+
 var app = builder.Build();
 
 // --- Middleware ---
@@ -88,15 +94,11 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.UseSession();
 
-builder.Services.AddDbContext<EventContext>(options =>
-    options.UseSqlServer(
-        builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // --- Routing ---
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Event}/{action=Main}/{id?}");
+    pattern: "{controller=User}/{action=Main}/{id?}");
 
-app.MapRazorPages();
 
 app.Run();

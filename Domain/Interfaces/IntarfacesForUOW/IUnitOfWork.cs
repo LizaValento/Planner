@@ -7,6 +7,7 @@ namespace Domain.Interfaces.InterfacesForUOW
         IUserRepository Users { get; }
         IEventRepository Events { get; } 
         IEventParticipantRepository EventParticipants { get; }
+        IRefreshTokenRepository RefreshTokens { get; }
         int Complete();
         Task<int> CompleteAsync();
     }
