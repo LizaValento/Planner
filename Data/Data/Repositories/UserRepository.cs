@@ -17,14 +17,14 @@ namespace Data.Data.Repositories
         public User GetById(int id)
         {
             return _context.Users
-                .Include(x => x.EventParticipants)
+                .Include(x => x.Events)
                 .FirstOrDefault(c => c.Id == id);
         }
 
         public async Task<User> GetByIdAsync(int id)
         {
             return await _context.Users
-                .Include(x => x.EventParticipants)
+                .Include(x => x.Events)
                 .FirstOrDefaultAsync(c => c.Id == id);
         }
 
@@ -41,7 +41,7 @@ namespace Data.Data.Repositories
         public async Task<IEnumerable<User>> GetAllAsync()
         {
             return await _context.Users
-                .Include(x => x.EventParticipants)
+                .Include(x => x.Events)
                 .ToListAsync();
         }
 

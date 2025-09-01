@@ -17,14 +17,14 @@ namespace Data.Data.Repositories
         public Event GetById(int id)
         {
             return _context.Events
-                .Include(x => x.EventParticipants)
+                .Include(x => x.Users)
                 .FirstOrDefault(c => c.Id == id);
         }
 
         public async Task<Event> GetByIdAsync(int id)
         {
             return await _context.Events
-                .Include(x => x.EventParticipants)
+                .Include(x => x.Users)
                 .FirstOrDefaultAsync(c => c.Id == id);
         }
 
@@ -41,7 +41,7 @@ namespace Data.Data.Repositories
         public async Task<IEnumerable<Event>> GetAllAsync()
         {
             return await _context.Events
-                .Include(x => x.EventParticipants)
+                .Include(x => x.Users)
                 .ToListAsync();
         }
 

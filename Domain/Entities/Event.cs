@@ -20,6 +20,6 @@ namespace Domain.Entities
         public string Location { get; set; }
         public string CreatedBy { get; set; }
         public DateTime CreatedAt { get; set; }
-        public IEnumerable<EventParticipant> EventParticipants { get; set; }
+        public IEnumerable<EventParticipant> Users { get; set; }
     }
 }

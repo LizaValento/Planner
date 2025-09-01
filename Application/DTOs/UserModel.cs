@@ -14,7 +14,7 @@ namespace Application.DTOs
             Password = User.Password;
             Role = User.Role;
             Email = User.Email;
-            EventParticipants = User.EventParticipants?.Select(b => new EventParticipantModel(b)).ToList() ?? new List<EventParticipantModel>();
+            EventParticipants = User.Events?.Select(b => new EventParticipantModel(b)).ToList() ?? new List<EventParticipantModel>();
         }
         public int Id { get; set; }
         public string FirstName { get; set; }

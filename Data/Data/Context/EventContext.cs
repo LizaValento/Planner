@@ -47,12 +47,14 @@ namespace Data.Data.Context
                 entity.HasKey(ep => ep.Id);
                 entity.Property(ep => ep.Id)
                     .ValueGeneratedOnAdd();
-                entity.HasOne<User>()
-                    .WithMany()
-                    .HasForeignKey(ep => ep.UserId);
-                entity.HasOne<Event>()
-                    .WithMany()
-                    .HasForeignKey(ep => ep.EventId);
+                entity.HasOne(ep => ep.User)
+                    .WithMany(u => u.Events)
+                    .HasForeignKey(ep => ep.UserId)
+                    .OnDelete(DeleteBehavior.Restrict);
+                entity.HasOne(ep => ep.Event)
+                    .WithMany(e => e.Users)
+                    .HasForeignKey(ep => ep.EventId)
+                    .OnDelete(DeleteBehavior.Restrict);
                 entity.Property(ep => ep.IsOrganizer);
                 entity.HasIndex(ep => new { ep.EventId, ep.UserId })
                     .IsUnique();

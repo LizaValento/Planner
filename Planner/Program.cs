@@ -15,6 +15,7 @@ using Application.Profiles;
 using AutoMapper;
 using Application.Validators;
 using Data.Data.Repositories;
+using System;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -86,6 +87,10 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseSession();
+
+builder.Services.AddDbContext<EventContext>(options =>
+    options.UseSqlServer(
+        builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // --- Routing ---
 app.MapControllerRoute(
