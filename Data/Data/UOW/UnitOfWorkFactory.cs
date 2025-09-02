@@ -20,8 +20,9 @@ namespace Data.UOW
             var userRepository = _serviceProvider.GetRequiredService<IUserRepository>();
             var eventRepository = _serviceProvider.GetRequiredService<IEventRepository>();
             var eventParticipantRepository = _serviceProvider.GetRequiredService<IEventParticipantRepository>();
+            var refreshTokenRepository = _serviceProvider.GetRequiredService<IRefreshTokenRepository>();
 
-            return new UnitOfWork(context, userRepository, eventRepository, eventParticipantRepository);
+            return new UnitOfWork(context, userRepository, eventRepository, eventParticipantRepository, refreshTokenRepository);
         }
     }
 

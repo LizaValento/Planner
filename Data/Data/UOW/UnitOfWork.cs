@@ -22,12 +22,14 @@ namespace Data.UOW
             RefreshTokens = new RefreshTokenRepository(_context);
         }
 
-        public UnitOfWork(EventContext context, IUserRepository userRepository, IEventRepository eventRepository, IEventParticipantRepository eventParticipantRepository)
+        public UnitOfWork(EventContext context, IUserRepository userRepository, IEventRepository eventRepository, 
+            IEventParticipantRepository eventParticipantRepository, IRefreshTokenRepository refreshTokenRepository)
         {
             _context = context;
             Users = userRepository;
             Events = eventRepository;
             EventParticipants = eventParticipantRepository;
+            RefreshTokens = refreshTokenRepository;
         }
 
         public int Complete()

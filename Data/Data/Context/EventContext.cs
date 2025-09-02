@@ -8,6 +8,7 @@ namespace Data.Data.Context
         public DbSet<User> Users { get; set; }
         public DbSet<Event> Events { get; set; }
         public DbSet<EventParticipant> EventParticipants { get; set; }
+        public DbSet<RefreshToken> RefreshTokens { get; set; }
 
         public EventContext(DbContextOptions<EventContext> options) : base(options)
         {
