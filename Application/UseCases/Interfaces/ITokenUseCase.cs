@@ -9,7 +9,7 @@ namespace Application.UseCases.Interfaces
         Task CheckAndUpdateTokens();
         string GenerateAccessToken(IEnumerable<Claim> claims);
         string GenerateRefreshToken();
-        RefreshTokenModel GetRefreshToken(string token);
+        Task<RefreshTokenModel> GetRefreshToken(string token);
         void Logout(HttpResponse response);
         Task<TokenModel> RefreshToken(string refreshToken, HttpContext httpContext);
         Task SaveRefreshToken(int userId, string token);

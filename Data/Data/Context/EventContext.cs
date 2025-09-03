@@ -24,7 +24,7 @@ namespace Data.Data.Context
                 entity.Property(u => u.FirstName);
                 entity.Property(u => u.LastName);
                 entity.Property(u => u.Nickname);
-                entity.HasIndex(u => u.Nickname);
+                entity.HasIndex(u => u.Nickname).IsUnique();
                 entity.Property(u => u.Password);
                 entity.Property(u => u.Email);
                 entity.Property(u => u.Role);
@@ -64,9 +64,9 @@ namespace Data.Data.Context
             modelBuilder.Entity<RefreshToken>(entity =>
             {
                 entity.HasKey(rt => rt.Id);
-                entity.Property(rt => rt.Token).IsRequired(false); // можно null
+                entity.Property(rt => rt.Token).IsRequired(false);
                 entity.Property(rt => rt.ExpiresAt);
-                entity.Property(rt => rt.UserId); // без связей, обычное поле
+                entity.Property(rt => rt.UserId);
             });
 
 

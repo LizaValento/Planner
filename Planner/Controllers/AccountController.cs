@@ -1,4 +1,5 @@
 ﻿using Application.DTOs;
+using Application.UseCases.Interfaces;
 using Application.UseCases.TokenCase;
 using Application.UseCases.UserCase;
 using FluentValidation;
@@ -8,21 +9,13 @@ namespace Presentation.Controllers
 {
     public class AccountController : Controller
     {
-        private readonly RegisterUserUseCase _registerUserUseCase;
-        private readonly AuthenticateUserUseCase _authenticateUserUseCase;
-        private readonly RefreshTokenUseCase _refreshTokenUseCase;
-        private readonly LogoutUseCase _logoutUseCase;
+        private readonly IUserUseCase _userUseCase;
+        private readonly ITokenUseCase _tokenUseCase;
 
-        public AccountController(
-            RegisterUserUseCase registerUserUseCase,
-            AuthenticateUserUseCase authenticateUserUseCase,
-            RefreshTokenUseCase refreshTokenUseCase,
-            LogoutUseCase logoutUseCase)
+        public AccountController(ITokenUseCase tokenUseCase, IUserUseCase userUseCase)
         {
-            _registerUserUseCase = registerUserUseCase;
-            _authenticateUserUseCase = authenticateUserUseCase;
-            _refreshTokenUseCase = refreshTokenUseCase;
-            _logoutUseCase = logoutUseCase;
+            _userUseCase = userUseCase;
+            _tokenUseCase = tokenUseCase;
         }
 
         [HttpGet("Account/Register")]
@@ -37,7 +30,7 @@ namespace Presentation.Controllers
         {
             try
             {
-                _registerUserUseCase.Execute(userModel);
+                _userUseCase.Register(userModel);
                 return RedirectToAction("Login");
             }
             catch (InvalidOperationException ex)
@@ -59,7 +52,7 @@ namespace Presentation.Controllers
         {
             try
             {
-                var token = _authenticateUserUseCase.Execute(userModel, HttpContext);
+                var token = _userUseCase.Authenticate(userModel, HttpContext);
                 return RedirectToAction("Main", "Book");
             }
             catch (UnauthorizedAccessException ex)
@@ -73,7 +66,7 @@ namespace Presentation.Controllers
         {
             try
             {
-                var tokenModel = await _refreshTokenUseCase.ExecuteAsync(refreshToken, HttpContext); 
+                var tokenModel = await _tokenUseCase.RefreshToken(refreshToken, HttpContext); 
                 return Ok(tokenModel);
             }
             catch (UnauthorizedAccessException ex)

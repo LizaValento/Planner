@@ -11,5 +11,6 @@ namespace Domain.Interfaces.InterfacesForRepositories
         void Add(User user);
         void Update(User user);
         void Remove(User user);
+        User GetByNickname(string nickname);
     }
 }

@@ -54,5 +54,10 @@ namespace Data.Data.Repositories
         {
             _context.Users.Remove(user);
         }
+
+        public User GetByNickname(string nickname)
+        {
+            return _context.Users.FirstOrDefault(u => u.Nickname == nickname);
+        }
     }
 }
