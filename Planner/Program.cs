@@ -34,6 +34,7 @@ builder.Services.AddDbContext<EventContext>(options =>
 builder.Services.AddScoped<IUserUseCase, UserUseCase>();
 builder.Services.AddScoped<IEventUseCase, EventUseCase>();
 builder.Services.AddScoped<IEventParticipantUseCase, EventParticipantUseCase>();
+builder.Services.AddScoped<ITokenUseCase, TokenUseCase>();
 
 // --- UnitOfWork & Repositories ---
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -41,10 +42,13 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IEventRepository, EventRepository>();
 builder.Services.AddScoped<IEventParticipantRepository, EventParticipantRepository>();
 builder.Services.AddScoped<IUnitOfWorkFactory, UnitOfWorkFactory>();
+builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 
 // --- FluentValidation ---
 builder.Services.AddScoped<IValidator<UserModel>, UserValidator>();
 builder.Services.AddScoped<IValidator<EventModel>, EventValidator>();
+builder.Services.AddScoped<IValidator<LoginModel>, LoginValidator>();
+builder.Services.AddScoped<IValidator<RegisterModel>, RegisterValidator>();
 
 // --- HttpContext и фильтры ---
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();

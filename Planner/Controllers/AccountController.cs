@@ -1,7 +1,6 @@
 ﻿using Application.DTOs;
 using Application.UseCases.Interfaces;
-using Application.UseCases.TokenCase;
-using Application.UseCases.UserCase;
+using Application.UseCases.Classes;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 
@@ -52,8 +51,8 @@ namespace Presentation.Controllers
         {
             try
             {
-                var token = _userUseCase.Authenticate(userModel, HttpContext);
-                return RedirectToAction("Main", "Book");
+                var token = _tokenUseCase.Authenticate(userModel, HttpContext);
+                return RedirectToAction("Main", "User");
             }
             catch (UnauthorizedAccessException ex)
             {
@@ -80,7 +79,7 @@ namespace Presentation.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Logout()
         {
-            _logoutUseCase.Execute(Response);
+            _tokenUseCase.Logout(Response);
             return RedirectToAction("Main", "Book");
         }
     }

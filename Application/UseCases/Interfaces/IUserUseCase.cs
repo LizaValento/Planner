@@ -10,8 +10,6 @@ namespace Application.UseCases.Interfaces
         Task<List<UserModel>> GetUsersAsync();
         Task UpdateAsync(UserModel model);
         Task DeleteAsync(int id);
-        void SetCookies(TokenModel tokenModel, HttpContext httpContext);
         void Register(RegisterModel userModel);
-        TokenModel Authenticate(LoginModel model, HttpContext httpContext);
     }
 }

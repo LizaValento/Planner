@@ -30,10 +30,12 @@ public class CustomAuthorizeAttribute : Attribute, IAsyncAuthorizationFilter
 
         using (var scope = context.HttpContext.RequestServices.CreateScope())
         {
-            var getRefreshTokenUseCase = scope.ServiceProvider.GetRequiredService<GetRefreshTokenUseCase>();
-            var getUserByIdUseCase = scope.ServiceProvider.GetRequiredService<GetUserByIdUseCase>();
+            //var getRefreshTokenUseCase = scope.ServiceProvider.GetRequiredService<ITokenUseCase>();
+            var tokenUseCase = scope.ServiceProvider.GetRequiredService<ITokenUseCase>();
+            var userUseCase = scope.ServiceProvider.GetRequiredService<IUserUseCase>();
+            //var getUserByIdUseCase = scope.ServiceProvider.GetRequiredService<GetUserByIdUseCase>();
 
-            if (string.IsNullOrEmpty(refreshToken) || !await ValidateRefreshTokenAsync(getRefreshTokenUseCase, refreshToken))
+            if (string.IsNullOrEmpty(refreshToken) || !await ValidateRefreshTokenAsync(tokenUseCase, refreshToken))
             {
                 context.Result = new UnauthorizedResult();
                 return;
@@ -41,14 +43,14 @@ public class CustomAuthorizeAttribute : Attribute, IAsyncAuthorizationFilter
 
             if (string.IsNullOrEmpty(token) || !ValidateAccessToken(token))
             {
-                var userId = await GetUserIdFromRefreshTokenAsync(getRefreshTokenUseCase, refreshToken);
+                var userId = await GetUserIdFromRefreshTokenAsync(tokenUseCase, refreshToken);
                 if (userId == null)
                 {
                     context.Result = new UnauthorizedResult();
                     return;
                 }
 
-                var user = await getUserByIdUseCase.ExecuteAsync(userId.Value);
+                var user = await userUseCase.GetByIdAsync(userId.Value);
                 var claims = new[]
                 {
                     new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
@@ -56,7 +58,7 @@ public class CustomAuthorizeAttribute : Attribute, IAsyncAuthorizationFilter
                     new Claim(ClaimTypes.Role, user.Role)
                 };
 
-                var newAccessToken = _generateAccessTokenUseCase.Execute(claims);
+                var newAccessToken = tokenUseCase.GenerateAccessToken(claims);
 
                 context.HttpContext.Response.Cookies.Append("AccessToken", newAccessToken, new CookieOptions
                 {
@@ -93,15 +95,15 @@ public class CustomAuthorizeAttribute : Attribute, IAsyncAuthorizationFilter
         }
     }
 
-    private async Task<bool> ValidateRefreshTokenAsync(GetRefreshTokenUseCase getRefreshTokenUseCase, string refreshToken)
+    private async Task<bool> ValidateRefreshTokenAsync(ITokenUseCase tokenUseCase, string refreshToken)
     {
-        var refreshTokenEntity = await getRefreshTokenUseCase.ExecuteAsync(refreshToken);
+        var refreshTokenEntity = await tokenUseCase.GetRefreshToken(refreshToken);
         return refreshTokenEntity != null && refreshTokenEntity.ExpiresAt > DateTime.UtcNow;
     }
 
-    private async Task<int?> GetUserIdFromRefreshTokenAsync(GetRefreshTokenUseCase getRefreshTokenUseCase, string refreshToken)
+    private async Task<int?> GetUserIdFromRefreshTokenAsync(ITokenUseCase tokenUseCase, string refreshToken)
     {
-        var refreshTokenEntity = await getRefreshTokenUseCase.ExecuteAsync(refreshToken);
+        var refreshTokenEntity = await tokenUseCase.GetRefreshToken(refreshToken);
         return refreshTokenEntity?.UserId;
     }
 }

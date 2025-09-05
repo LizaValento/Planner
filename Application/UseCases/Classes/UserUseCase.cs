@@ -72,25 +72,6 @@ namespace Application.UseCases.Classes
             }
         }
 
-        public void SetCookies(TokenModel tokenModel, HttpContext httpContext)
-        {
-            httpContext.Response.Cookies.Append("AccessToken", tokenModel.AccessToken, new CookieOptions
-            {
-                HttpOnly = true,
-                Secure = true,
-                SameSite = SameSiteMode.Strict,
-                Expires = DateTimeOffset.UtcNow.AddMinutes(1)
-            });
-
-            httpContext.Response.Cookies.Append("RefreshToken", tokenModel.RefreshToken, new CookieOptions
-            {
-                HttpOnly = true,
-                Secure = true,
-                SameSite = SameSiteMode.Strict,
-                Expires = DateTimeOffset.UtcNow.AddDays(30)
-            });
-        }
-
         public void Register(RegisterModel userModel)
         {
             if (userModel == null)
@@ -110,6 +91,7 @@ namespace Application.UseCases.Classes
                 Password = userModel.Password,
                 LastName = userModel.LastName,
                 Nickname = userModel.Nickname,
+                Email = userModel.Email,
                 Role = "User"
             };
 
@@ -117,37 +99,5 @@ namespace Application.UseCases.Classes
             _uow.Complete();
         }
 
-        public TokenModel Authenticate(LoginModel model, HttpContext httpContext)
-        {
-            var user = _uow.Users.GetByNickname(model.Nickname);
-            if (user == null || user.Password != model.Password)
-            {
-                throw new UnauthorizedAccessException("Invalid credentials.");
-            }
-
-            var claims = new[]
-            {
-                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim(ClaimTypes.Name, user.Nickname),
-                new Claim(ClaimTypes.Role, user.Role)
-            };
-
-            var accessToken = _tokenUseCase.GenerateAccessToken(claims);
-            var refreshToken = _tokenUseCase.GenerateRefreshToken();
-
-            _tokenUseCase.SaveRefreshToken(user.Id, refreshToken);
-
-            SetCookies(new TokenModel
-            {
-                AccessToken = accessToken,
-                RefreshToken = refreshToken
-            }, httpContext);
-
-            return new TokenModel
-            {
-                AccessToken = accessToken,
-                RefreshToken = refreshToken
-            };
-        }
     }
 }

@@ -18,13 +18,11 @@ namespace Application.UseCases.Classes
         private readonly IUnitOfWork _uow;
         private readonly IMapper _mapper;
         private readonly JWTSettings _jwtSettings;
-        private readonly IUserUseCase _userUseCase;
-        public TokenUseCase(IUnitOfWork uow, IMapper mapper, IOptions<JWTSettings> jwtSettings, IUserUseCase userUseCase)
+        public TokenUseCase(IUnitOfWork uow, IMapper mapper, IOptions<JWTSettings> jwtSettings)
         {
             _uow = uow;
             _mapper = mapper;
             _jwtSettings = jwtSettings.Value;
-            _userUseCase = userUseCase;
         }
 
         public async Task CheckAndUpdateTokens()
@@ -114,7 +112,7 @@ namespace Application.UseCases.Classes
 
             await SaveRefreshToken(user.Id, newRefreshToken);
 
-            _userUseCase.SetCookies(new TokenModel
+            SetCookies(new TokenModel
             {
                 AccessToken = newAccessToken,
                 RefreshToken = newRefreshToken
@@ -166,6 +164,58 @@ namespace Application.UseCases.Classes
         {
             var refreshToken = await GetRefreshToken(token);
             return refreshToken != null && refreshToken.UserId == userId && refreshToken.ExpiresAt > DateTime.UtcNow;
+        }
+
+        public void SetCookies(TokenModel tokenModel, HttpContext httpContext)
+        {
+            httpContext.Response.Cookies.Append("AccessToken", tokenModel.AccessToken, new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.Strict,
+                Expires = DateTimeOffset.UtcNow.AddMinutes(1)
+            });
+
+            httpContext.Response.Cookies.Append("RefreshToken", tokenModel.RefreshToken, new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.Strict,
+                Expires = DateTimeOffset.UtcNow.AddDays(30)
+            });
+        }
+
+        public TokenModel Authenticate(LoginModel model, HttpContext httpContext)
+        {
+            var user = _uow.Users.GetByNickname(model.Nickname);
+            if (user == null || user.Password != model.Password)
+            {
+                throw new UnauthorizedAccessException("Invalid credentials.");
+            }
+
+            var claims = new[]
+            {
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.Name, user.Nickname),
+                new Claim(ClaimTypes.Role, user.Role)
+            };
+
+            var accessToken = GenerateAccessToken(claims);
+            var refreshToken = GenerateRefreshToken();
+
+            SaveRefreshToken(user.Id, refreshToken);
+
+            SetCookies(new TokenModel
+            {
+                AccessToken = accessToken,
+                RefreshToken = refreshToken
+            }, httpContext);
+
+            return new TokenModel
+            {
+                AccessToken = accessToken,
+                RefreshToken = refreshToken
+            };
         }
     }
 }

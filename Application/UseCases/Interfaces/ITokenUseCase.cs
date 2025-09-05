@@ -14,5 +14,7 @@ namespace Application.UseCases.Interfaces
         Task<TokenModel> RefreshToken(string refreshToken, HttpContext httpContext);
         Task SaveRefreshToken(int userId, string token);
         Task<bool> ValidateRefreshToken(int userId, string token);
+        void SetCookies(TokenModel tokenModel, HttpContext httpContext);
+        TokenModel Authenticate(LoginModel model, HttpContext httpContext);
     }
 }
