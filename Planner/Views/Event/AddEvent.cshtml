@@ -1,0 +1,19 @@
+﻿@model EventModel
+@using Application.DTOs
+
+<h2>Добавить событие</h2>
+
+<form method="post" action="@Url.Action("AddEvent", "Event")">
+	<p>Название:</p>
+	@Html.TextBoxFor(model => model.Title)<br>
+	@* <p>Дата:</p>
+	@Html.TextBoxFor(model => model.Date, new { type = "datetime-local" })<br> 
+	<p>Место:</p>
+	@Html.TextBoxFor(model => model.Location)<br>
+	<p>Описание:</p>
+	@Html.TextBoxFor(model => model.Description)<br> *@
+	<button type="submit" class="buttons">Сохранить</button>
+</form>
+
+<a href="@Url.Action("Main", "Book")">Вернуться к списку событий</a>
+

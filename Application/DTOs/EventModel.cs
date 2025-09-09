@@ -14,7 +14,7 @@ namespace Application.DTOs
             Location = Event.Location;
             CreatedBy = Event.CreatedBy;
             CreatedAt = Event.CreatedAt;
-            EventParticipants = Event.Users?.Select(b => new EventParticipantModel(b)).ToList() ?? new List<EventParticipantModel>();
+            Users = Event.Users?.Select(b => new EventParticipantModel(b)).ToList() ?? new List<EventParticipantModel>();
         }
         public int Id { get; set; }
         public string Title { get; set; }
@@ -23,6 +23,6 @@ namespace Application.DTOs
         public string Location { get; set; }
         public string CreatedBy { get; set; }
         public DateTime CreatedAt { get; set; }
-        public List<EventParticipantModel> EventParticipants { get; set; }
+        public List<EventParticipantModel> Users { get; set; }
     }
 }

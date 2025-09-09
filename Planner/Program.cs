@@ -4,15 +4,13 @@ using Data.UOW;
 using Domain.Interfaces.InterfacesForRepositories;
 using Domain.Interfaces.InterfacesForUOW;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
+using System.Text;
 using FluentValidation;
 using Application.UseCases.Classes;
 using Application.UseCases.Interfaces;
 using Application.DTOs;
-using Application.Profiles;
-using AutoMapper;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
 using Application.Validators;
 using Data.Data.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -54,6 +52,7 @@ builder.Services.AddScoped<IValidator<RegisterModel>, RegisterValidator>();
 // --- HttpContext и фильтры ---
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.AddScoped(typeof(ValidateModelAttribute<>));
+builder.Services.AddScoped<CustomAuthorizeAttribute>();
 
 // --- Session ---
 builder.Services.AddSession(options =>
@@ -134,7 +133,7 @@ app.UseSession();
 // --- Routing ---
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=User}/{action=Main}/{id?}");
+    pattern: "{controller=Event}/{action=Main}/{id?}");
 
 
 app.Run();

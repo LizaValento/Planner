@@ -15,4 +15,7 @@ else
     <a href="@Url.Action("Login", "Account")">Авторизация</a>
     <a href="@Url.Action("Register", "Account")">Регистрация</a>
 }
-
+@if (HttpContextAccessor.HttpContext.User.Identity.IsAuthenticated)
+{
+    <a href="@Url.Action("AddEvent", "Event")">Добавить событие</a>
+}

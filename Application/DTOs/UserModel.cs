@@ -14,7 +14,7 @@ namespace Application.DTOs
             Password = User.Password;
             Role = User.Role;
             Email = User.Email;
-            EventParticipants = User.Events?.Select(b => new EventParticipantModel(b)).ToList() ?? new List<EventParticipantModel>();
+            Events = User.Events?.Select(b => new EventParticipantModel(b)).ToList() ?? new List<EventParticipantModel>();
         }
         public int Id { get; set; }
         public string FirstName { get; set; }
@@ -23,6 +23,6 @@ namespace Application.DTOs
         public string Password { get; set; }
         public string Email { get; set; }
         public string Role { get; set; }
-        public List<EventParticipantModel> EventParticipants { get; set; }
+        public List<EventParticipantModel> Events { get; set; }
     }
 }

@@ -52,7 +52,7 @@ namespace Presentation.Controllers
             try
             {
                 var token = _tokenUseCase.Authenticate(userModel, HttpContext);
-                return RedirectToAction("Main", "User");
+                return RedirectToAction("Main", "Event");
             }
             catch (UnauthorizedAccessException ex)
             {
@@ -80,7 +80,7 @@ namespace Presentation.Controllers
         public IActionResult Logout()
         {
             _tokenUseCase.Logout(Response);
-            return RedirectToAction("Main", "Book");
+            return RedirectToAction("Main", "Event");
         }
     }
 }

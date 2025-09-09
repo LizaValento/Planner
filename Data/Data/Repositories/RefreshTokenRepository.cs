@@ -27,19 +27,16 @@ namespace Data.Data.Repositories
         public async Task AddAsync(RefreshToken refreshToken)
         {
             await _context.RefreshTokens.AddAsync(refreshToken);
-            await _context.SaveChangesAsync();
         }
 
         public async Task UpdateAsync(RefreshToken refreshToken)
         {
             _context.RefreshTokens.Update(refreshToken);
-            await _context.SaveChangesAsync();
         }
 
         public async Task DeleteAsync(RefreshToken refreshToken)
         {
             _context.RefreshTokens.Remove(refreshToken);
-            await _context.SaveChangesAsync();
         }
 
         public async Task<RefreshToken> GetByUserIdAsync(int userId)
