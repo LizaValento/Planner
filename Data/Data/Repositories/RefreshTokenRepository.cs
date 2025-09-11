@@ -24,12 +24,22 @@ namespace Data.Data.Repositories
             return await _context.RefreshTokens.ToListAsync();
         }
 
-        public async Task AddAsync(RefreshToken refreshToken)
+        public void Add(RefreshToken refreshToken)
         {
-            await _context.RefreshTokens.AddAsync(refreshToken);
+            try
+            {
+                //Console.WriteLine("DB CanConnect = " + _context.Database.CanConnect());
+                _context.RefreshTokens.Add(refreshToken);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("[ERROR] " + ex.GetType().Name + ": " + ex.Message);
+                Console.WriteLine(ex.StackTrace);
+                throw;
+            }
         }
 
-        public async Task UpdateAsync(RefreshToken refreshToken)
+        public void Update(RefreshToken refreshToken)
         {
             _context.RefreshTokens.Update(refreshToken);
         }

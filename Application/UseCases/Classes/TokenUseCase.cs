@@ -137,7 +137,7 @@ namespace Application.UseCases.Classes
             {
                 refreshTokenEntity.Token = token;
                 refreshTokenEntity.ExpiresAt = DateTime.UtcNow.AddDays(30);
-                await _uow.RefreshTokens.UpdateAsync(refreshTokenEntity);
+                _uow.RefreshTokens.Update(refreshTokenEntity);
             }
             else
             {
@@ -154,7 +154,7 @@ namespace Application.UseCases.Classes
                     Token = refreshToken.Token,
                     ExpiresAt = refreshToken.ExpiresAt
                 };
-                await _uow.RefreshTokens.AddAsync(refreshTokenEntityNew);
+                _uow.RefreshTokens.Add(refreshTokenEntityNew);
             }
 
             await _uow.CompleteAsync();

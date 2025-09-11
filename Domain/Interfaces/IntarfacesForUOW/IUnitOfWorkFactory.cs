@@ -1,9 +1,9 @@
-﻿using Domain.Interfaces.InterfacesForRepositories;
+﻿//using Domain.Interfaces.InterfacesForRepositories;
 
-namespace Domain.Interfaces.InterfacesForUOW
-{
-    public interface IUnitOfWorkFactory
-    {
-        IUnitOfWork Create();
-    }
-}
+//namespace Domain.Interfaces.InterfacesForUOW
+//{
+//    public interface IUnitOfWorkFactory
+//    {
+//        IUnitOfWork Create();
+//    }
+//}

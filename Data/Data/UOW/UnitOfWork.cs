@@ -1,5 +1,4 @@
 ﻿using Domain.Interfaces.InterfacesForRepositories;
-using Data.Data.Repositories;
 using Domain.Interfaces.InterfacesForUOW;
 using Data.Data.Context;
 
@@ -8,28 +7,24 @@ namespace Data.UOW
     public class UnitOfWork : IUnitOfWork
     {
         private readonly EventContext _context;
-        public IUserRepository Users { get; private set; }
-        public IEventRepository Events { get; private set; }
-        public IEventParticipantRepository EventParticipants { get; private set; }
-        public IRefreshTokenRepository RefreshTokens { get; private set; }
 
-        public UnitOfWork(EventContext context)
+        public IUserRepository Users { get; }
+        public IEventRepository Events { get; }
+        public IEventParticipantRepository EventParticipants { get; }
+        public IRefreshTokenRepository RefreshTokens { get; }
+
+        public UnitOfWork(
+            EventContext context,
+            IUserRepository users,
+            IEventRepository events,
+            IEventParticipantRepository eventParticipants,
+            IRefreshTokenRepository refreshTokens)
         {
             _context = context;
-            Users = new UserRepository(_context);
-            Events = new EventRepository(_context);
-            EventParticipants = new EventParticipantRepository(_context);
-            RefreshTokens = new RefreshTokenRepository(_context);
-        }
-
-        public UnitOfWork(EventContext context, IUserRepository userRepository, IEventRepository eventRepository, 
-            IEventParticipantRepository eventParticipantRepository, IRefreshTokenRepository refreshTokenRepository)
-        {
-            _context = context;
-            Users = userRepository;
-            Events = eventRepository;
-            EventParticipants = eventParticipantRepository;
-            RefreshTokens = refreshTokenRepository;
+            Users = users;
+            Events = events;
+            EventParticipants = eventParticipants;
+            RefreshTokens = refreshTokens;
         }
 
         public int Complete()
@@ -42,9 +37,6 @@ namespace Data.UOW
             return await _context.SaveChangesAsync();
         }
 
-        public void Dispose()
-        {
-            _context.Dispose();
-        }
+        // ❌ Не трогаем Dispose — DbContext освобождается DI контейнером
     }
 }

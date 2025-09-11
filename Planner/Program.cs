@@ -25,9 +25,6 @@ builder.Services.AddAutoMapper(cfg =>
 });
 
 
-// --- DbContext ---
-builder.Services.AddDbContext<EventContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // --- UseCases ---
 builder.Services.AddScoped<IUserUseCase, UserUseCase>();
@@ -61,6 +58,16 @@ builder.Services.AddSession(options =>
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
 });
+
+builder.Services.AddDbContext<EventContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
+           .LogTo(msg => File.AppendAllText("ef-log.txt", msg + Environment.NewLine),
+                  LogLevel.Information)
+           .EnableSensitiveDataLogging()
+);
+
+builder.Logging.AddConsole();
+builder.Logging.SetMinimumLevel(LogLevel.Debug);
 
 
 builder.Services.Configure<JWTSettings>(builder.Configuration.GetSection("JwtSettings"));
@@ -106,9 +113,6 @@ builder.Services.AddLogging(config =>
     config.AddDebug();
 });
 
-builder.Services.AddDbContext<EventContext>(options =>
-    options.UseSqlServer(
-        builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddControllersWithViews();
 

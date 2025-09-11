@@ -2,7 +2,7 @@
 
 namespace Domain.Interfaces.InterfacesForUOW
 {
-    public interface IUnitOfWork : IDisposable
+    public interface IUnitOfWork
     {
         IUserRepository Users { get; }
         IEventRepository Events { get; } 

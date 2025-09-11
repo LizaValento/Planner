@@ -64,6 +64,8 @@ namespace Data.Data.Context
             modelBuilder.Entity<RefreshToken>(entity =>
             {
                 entity.HasKey(rt => rt.Id);
+                entity.Property(rt => rt.Id)
+                    .ValueGeneratedOnAdd();
                 entity.Property(rt => rt.Token).IsRequired(false);
                 entity.Property(rt => rt.ExpiresAt);
                 entity.Property(rt => rt.UserId);
