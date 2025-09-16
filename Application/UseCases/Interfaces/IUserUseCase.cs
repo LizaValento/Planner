@@ -5,11 +5,11 @@ namespace Application.UseCases.Interfaces
 {
     public interface IUserUseCase
     {
-        Task<UserModel> AddAsync(UserModel model);
-        Task<UserModel?> GetByIdAsync(int? id);
-        Task<List<UserModel>> GetUsersAsync();
-        Task UpdateAsync(UserModel model);
-        Task DeleteAsync(int id);
+        UserModel Add(UserModel model);
+        UserModel? GetById(int? id);
+        List<UserModel> GetUsers();
+        void Update(UserModel model);
+        void Delete(int id);
         void Register(RegisterModel userModel);
     }
 }

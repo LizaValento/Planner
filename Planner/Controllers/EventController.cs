@@ -1,6 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
-using System.Security.Claims;
 using Application.DTOs;
 using Application.UseCases.Interfaces;
 
@@ -10,8 +8,7 @@ namespace Presentation.Controllers
     {
         private readonly IEventUseCase _EventUseCase;
 
-        public EventController(
-            IEventUseCase EventUseCase)
+        public EventController(IEventUseCase EventUseCase)
         {
             _EventUseCase = EventUseCase;
         }
@@ -19,9 +16,9 @@ namespace Presentation.Controllers
         [HttpPost]
         [ServiceFilter(typeof(CustomAuthorizeAttribute))]
         [ServiceFilter(typeof(ValidateModelAttribute<EventModel>))]
-        public async Task<ActionResult> AddEvent(EventModel Event)
+        public ActionResult AddEvent(EventModel Event)
         {
-            var (success, errors) = await _EventUseCase.AddAsync(Event);
+            var (success, errors) = _EventUseCase.Add(Event);
 
             if (!success)
             {

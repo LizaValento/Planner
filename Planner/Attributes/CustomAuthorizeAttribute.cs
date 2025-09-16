@@ -10,7 +10,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-public class CustomAuthorizeAttribute : Attribute, IAsyncAuthorizationFilter
+public class CustomAuthorizeAttribute : Attribute, IAuthorizationFilter
 {
     private readonly JWTSettings _jwtSettings;
     private readonly IMapper _mapper;
@@ -23,19 +23,17 @@ public class CustomAuthorizeAttribute : Attribute, IAsyncAuthorizationFilter
         _tokenUseCase = tokenUseCase;
     }
 
-    public async Task OnAuthorizationAsync(AuthorizationFilterContext context)
+    public void OnAuthorization(AuthorizationFilterContext context)
     {
         var token = context.HttpContext.Request.Cookies["AccessToken"];
         var refreshToken = context.HttpContext.Request.Cookies["RefreshToken"];
 
         using (var scope = context.HttpContext.RequestServices.CreateScope())
         {
-            //var getRefreshTokenUseCase = scope.ServiceProvider.GetRequiredService<ITokenUseCase>();
             var tokenUseCase = scope.ServiceProvider.GetRequiredService<ITokenUseCase>();
             var userUseCase = scope.ServiceProvider.GetRequiredService<IUserUseCase>();
-            //var getUserByIdUseCase = scope.ServiceProvider.GetRequiredService<GetUserByIdUseCase>();
 
-            if (string.IsNullOrEmpty(refreshToken) || !await ValidateRefreshTokenAsync(tokenUseCase, refreshToken))
+            if (string.IsNullOrEmpty(refreshToken) || !ValidateRefreshToken(tokenUseCase, refreshToken))
             {
                 context.Result = new UnauthorizedResult();
                 return;
@@ -43,14 +41,14 @@ public class CustomAuthorizeAttribute : Attribute, IAsyncAuthorizationFilter
 
             if (string.IsNullOrEmpty(token) || !ValidateAccessToken(token))
             {
-                var userId = await GetUserIdFromRefreshTokenAsync(tokenUseCase, refreshToken);
+                var userId = GetUserIdFromRefreshToken(tokenUseCase, refreshToken);
                 if (userId == null)
                 {
                     context.Result = new UnauthorizedResult();
                     return;
                 }
 
-                var user = await userUseCase.GetByIdAsync(userId.Value);
+                var user = userUseCase.GetById(userId.Value);
                 var claims = new[]
                 {
                     new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
@@ -95,15 +93,15 @@ public class CustomAuthorizeAttribute : Attribute, IAsyncAuthorizationFilter
         }
     }
 
-    private async Task<bool> ValidateRefreshTokenAsync(ITokenUseCase tokenUseCase, string refreshToken)
+    private bool ValidateRefreshToken(ITokenUseCase tokenUseCase, string refreshToken)
     {
-        var refreshTokenEntity = await tokenUseCase.GetRefreshToken(refreshToken);
+        var refreshTokenEntity = tokenUseCase.GetRefreshToken(refreshToken);
         return refreshTokenEntity != null && refreshTokenEntity.ExpiresAt > DateTime.UtcNow;
     }
 
-    private async Task<int?> GetUserIdFromRefreshTokenAsync(ITokenUseCase tokenUseCase, string refreshToken)
+    private int? GetUserIdFromRefreshToken(ITokenUseCase tokenUseCase, string refreshToken)
     {
-        var refreshTokenEntity = await tokenUseCase.GetRefreshToken(refreshToken);
+        var refreshTokenEntity = tokenUseCase.GetRefreshToken(refreshToken);
         return refreshTokenEntity?.UserId;
     }
 }

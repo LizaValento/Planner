@@ -16,16 +16,16 @@ namespace Application.UseCases.Classes
         private readonly IValidator<EventModel> _eventValidator;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public EventUseCase(IUnitOfWork uow, IMapper mapper, IValidator<EventModel> _eventValidator
-            , IHttpContextAccessor httpContextAccessor)
+        public EventUseCase(IUnitOfWork uow, IMapper mapper, IValidator<EventModel> eventValidator,
+            IHttpContextAccessor httpContextAccessor)
         {
             _uow = uow;
             _mapper = mapper;
-            _eventValidator = _eventValidator;
+            _eventValidator = eventValidator;
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public async Task<(bool Success, IEnumerable<string> Errors)> AddAsync(EventModel eventModel)
+        public (bool Success, IEnumerable<string> Errors) Add(EventModel eventModel)
         {
             if (eventModel == null)
             {
@@ -38,16 +38,18 @@ namespace Application.UseCases.Classes
                 var errors = validationResult.Errors.Select(e => e.ErrorMessage);
                 return (false, errors);
             }
+
             eventModel.CreatedBy = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.Name)?.Value;
             eventModel.CreatedAt = DateTime.UtcNow;
             eventModel.Users = new List<EventParticipantModel>
+            {
+                new EventParticipantModel
                 {
-                    new EventParticipantModel
-                    {
-                        UserId = int.Parse(_httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value),
-                        IsOrganizer = true
-                    }
-                };
+                    UserId = int.Parse(_httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value),
+                    IsOrganizer = true
+                }
+            };
+
             var eventEntity = _mapper.Map<Event>(eventModel);
             _uow.Events.Add(eventEntity);
 
@@ -55,24 +57,24 @@ namespace Application.UseCases.Classes
             return (true, Enumerable.Empty<string>());
         }
 
-        public async Task<EventModel?> GetByIdAsync(int? id)
+        public EventModel? GetById(int? id)
         {
             if (id == null)
             {
                 throw new ArgumentNullException(nameof(id), "Id cannot be null.");
             }
 
-            var Event = await _uow.Events.GetByIdAsync(id.Value);
+            var Event = _uow.Events.GetById(id.Value);
             return Event == null ? null : _mapper.Map<EventModel>(Event);
         }
 
-        public async Task<List<EventModel>> GetEventsAsync()
+        public List<EventModel> GetEvents()
         {
             var Events = _uow.Events.GetAll();
             return _mapper.Map<List<EventModel>>(Events);
         }
 
-        public async Task UpdateAsync(EventModel model)
+        public void Update(EventModel model)
         {
             if (model == null)
             {
@@ -81,10 +83,10 @@ namespace Application.UseCases.Classes
 
             var EventEntity = _mapper.Map<Event>(model);
             _uow.Events.Update(EventEntity);
-            await _uow.CompleteAsync();
+            _uow.Complete();
         }
 
-        public async Task DeleteAsync(int id)
+        public void Delete(int id)
         {
             var Event = _uow.Events.GetById(id);
             if (Event != null)

@@ -36,7 +36,5 @@ namespace Data.UOW
         {
             return await _context.SaveChangesAsync();
         }
-
-        // ❌ Не трогаем Dispose — DbContext освобождается DI контейнером
     }
 }

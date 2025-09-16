@@ -6,14 +6,14 @@ namespace Application.UseCases.Interfaces
 {
     public interface ITokenUseCase
     {
-        Task CheckAndUpdateTokens();
+        void CheckAndUpdateTokens();
         string GenerateAccessToken(IEnumerable<Claim> claims);
         string GenerateRefreshToken();
-        Task<RefreshTokenModel> GetRefreshToken(string token);
+        RefreshTokenModel? GetRefreshToken(string token);
         void Logout(HttpResponse response);
-        Task<TokenModel> RefreshToken(string refreshToken, HttpContext httpContext);
-        Task SaveRefreshToken(int userId, string token);
-        Task<bool> ValidateRefreshToken(int userId, string token);
+        TokenModel RefreshToken(string refreshToken, HttpContext httpContext);
+        void SaveRefreshToken(int userId, string token);
+        bool ValidateRefreshToken(int userId, string token);
         void SetCookies(TokenModel tokenModel, HttpContext httpContext);
         TokenModel Authenticate(LoginModel model, HttpContext httpContext);
     }

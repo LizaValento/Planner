@@ -9,7 +9,6 @@ using System.Text;
 using Microsoft.Extensions.Options;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Http;
-using Application.UseCases.Interfaces;
 
 namespace Application.UseCases.Classes
 {
@@ -18,6 +17,7 @@ namespace Application.UseCases.Classes
         private readonly IUnitOfWork _uow;
         private readonly IMapper _mapper;
         private readonly JWTSettings _jwtSettings;
+
         public TokenUseCase(IUnitOfWork uow, IMapper mapper, IOptions<JWTSettings> jwtSettings)
         {
             _uow = uow;
@@ -25,18 +25,18 @@ namespace Application.UseCases.Classes
             _jwtSettings = jwtSettings.Value;
         }
 
-        public async Task CheckAndUpdateTokens()
+        public void CheckAndUpdateTokens()
         {
-            var refreshTokenEntities = await _uow.RefreshTokens.GetAllAsync();
+            var refreshTokenEntities = _uow.RefreshTokens.GetAll();
             foreach (var refreshTokenEntity in refreshTokenEntities)
             {
                 if (refreshTokenEntity.ExpiresAt < DateTime.UtcNow)
                 {
-                    _uow.RefreshTokens.DeleteAsync(refreshTokenEntity);
+                    _uow.RefreshTokens.Delete(refreshTokenEntity);
                 }
             }
 
-            await _uow.CompleteAsync();
+            _uow.Complete();
         }
 
         public string GenerateAccessToken(IEnumerable<Claim> claims)
@@ -53,7 +53,7 @@ namespace Application.UseCases.Classes
                 _jwtSettings.Issuer,
                 _jwtSettings.Audience,
                 claims,
-                expires: DateTime.Now.AddMinutes(_jwtSettings.AccessTokenLifetime),
+                expires: DateTime.UtcNow.AddMinutes(_jwtSettings.AccessTokenLifetime),
                 signingCredentials: creds);
 
             return new JwtSecurityTokenHandler().WriteToken(token);
@@ -64,19 +64,15 @@ namespace Application.UseCases.Classes
             return Guid.NewGuid().ToString();
         }
 
-        public async Task<RefreshTokenModel> GetRefreshToken(string token)
+        public RefreshTokenModel? GetRefreshToken(string token)
         {
             if (string.IsNullOrEmpty(token))
             {
                 throw new ArgumentNullException(nameof(token), "Token не может быть null или пустым.");
             }
 
-            var refreshTokenEntity = await _uow.RefreshTokens.GetByTokenAsync(token);
-            if (refreshTokenEntity == null)
-            {
-                return null;
-            }
-            return _mapper.Map<RefreshTokenModel>(refreshTokenEntity);
+            var refreshTokenEntity = _uow.RefreshTokens.GetByToken(token);
+            return refreshTokenEntity == null ? null : _mapper.Map<RefreshTokenModel>(refreshTokenEntity);
         }
 
         public void Logout(HttpResponse response)
@@ -85,16 +81,16 @@ namespace Application.UseCases.Classes
             response.Cookies.Delete("RefreshToken");
         }
 
-        public async Task<TokenModel> RefreshToken(string refreshToken, HttpContext httpContext)
+        public TokenModel RefreshToken(string refreshToken, HttpContext httpContext)
         {
-            var refreshTokenEntity = await GetRefreshToken(refreshToken);
+            var refreshTokenEntity = GetRefreshToken(refreshToken);
 
             if (refreshTokenEntity == null || refreshTokenEntity.ExpiresAt < DateTime.UtcNow)
             {
                 throw new UnauthorizedAccessException("Invalid refresh token.");
             }
 
-            var user = await _uow.Users.GetByIdAsync(refreshTokenEntity.UserId);
+            var user = _uow.Users.GetById(refreshTokenEntity.UserId);
             if (user == null)
             {
                 throw new UnauthorizedAccessException("User not found.");
@@ -110,29 +106,26 @@ namespace Application.UseCases.Classes
             var newAccessToken = GenerateAccessToken(claims);
             var newRefreshToken = GenerateRefreshToken();
 
-            await SaveRefreshToken(user.Id, newRefreshToken);
+            SaveRefreshToken(user.Id, newRefreshToken);
 
-            SetCookies(new TokenModel
-            {
-                AccessToken = newAccessToken,
-                RefreshToken = newRefreshToken
-            }, httpContext);
-
-            return new TokenModel
+            var tokenModel = new TokenModel
             {
                 AccessToken = newAccessToken,
                 RefreshToken = newRefreshToken
             };
+
+            SetCookies(tokenModel, httpContext);
+            return tokenModel;
         }
 
-        public async Task SaveRefreshToken(int userId, string token)
+        public void SaveRefreshToken(int userId, string token)
         {
             if (string.IsNullOrEmpty(token))
             {
                 throw new ArgumentNullException(nameof(token), "Token не может быть null или пустым.");
             }
 
-            var refreshTokenEntity = await _uow.RefreshTokens.GetByUserIdAsync(userId);
+            var refreshTokenEntity = _uow.RefreshTokens.GetByUserId(userId);
             if (refreshTokenEntity != null)
             {
                 refreshTokenEntity.Token = token;
@@ -141,28 +134,21 @@ namespace Application.UseCases.Classes
             }
             else
             {
-                var refreshToken = new RefreshTokenModel
+                var refreshTokenEntityNew = new RefreshToken
                 {
                     UserId = userId,
                     Token = token,
                     ExpiresAt = DateTime.UtcNow.AddDays(30)
                 };
-
-                var refreshTokenEntityNew = new RefreshToken
-                {
-                    UserId = refreshToken.UserId,
-                    Token = refreshToken.Token,
-                    ExpiresAt = refreshToken.ExpiresAt
-                };
                 _uow.RefreshTokens.Add(refreshTokenEntityNew);
             }
 
-            await _uow.CompleteAsync();
+            _uow.Complete();
         }
 
-        public async Task<bool> ValidateRefreshToken(int userId, string token)
+        public bool ValidateRefreshToken(int userId, string token)
         {
-            var refreshToken = await GetRefreshToken(token);
+            var refreshToken = GetRefreshToken(token);
             return refreshToken != null && refreshToken.UserId == userId && refreshToken.ExpiresAt > DateTime.UtcNow;
         }
 
@@ -205,17 +191,14 @@ namespace Application.UseCases.Classes
 
             SaveRefreshToken(user.Id, refreshToken);
 
-            SetCookies(new TokenModel
-            {
-                AccessToken = accessToken,
-                RefreshToken = refreshToken
-            }, httpContext);
-
-            return new TokenModel
+            var tokenModel = new TokenModel
             {
                 AccessToken = accessToken,
                 RefreshToken = refreshToken
             };
+
+            SetCookies(tokenModel, httpContext);
+            return tokenModel;
         }
     }
 }

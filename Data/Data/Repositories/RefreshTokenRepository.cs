@@ -14,44 +14,51 @@ namespace Data.Data.Repositories
             _context = context;
         }
 
-        public async Task<RefreshToken> GetByTokenAsync(string token)
+        public RefreshToken? GetByToken(string token)
         {
-            return await _context.RefreshTokens.FirstOrDefaultAsync(rt => rt.Token == token);
+            return _context.RefreshTokens.FirstOrDefault(rt => rt.Token == token);
         }
 
-        public async Task<IEnumerable<RefreshToken>> GetAllAsync()
+        public IEnumerable<RefreshToken> GetAll()
         {
-            return await _context.RefreshTokens.ToListAsync();
+            return _context.RefreshTokens.ToList();
         }
 
         public void Add(RefreshToken refreshToken)
         {
+            if (refreshToken == null)
+                throw new ArgumentNullException(nameof(refreshToken), "RefreshToken не может быть null.");
+
             try
             {
-                //Console.WriteLine("DB CanConnect = " + _context.Database.CanConnect());
                 _context.RefreshTokens.Add(refreshToken);
+                _context.SaveChanges(); // синхронный вызов
+            }
+            catch (DbUpdateException ex)
+            {
+                throw new Exception("Ошибка при добавлении RefreshToken в базу данных.", ex);
             }
             catch (Exception ex)
             {
-                Console.WriteLine("[ERROR] " + ex.GetType().Name + ": " + ex.Message);
-                Console.WriteLine(ex.StackTrace);
-                throw;
+                throw new Exception("Неизвестная ошибка при добавлении RefreshToken.", ex);
             }
         }
 
         public void Update(RefreshToken refreshToken)
         {
             _context.RefreshTokens.Update(refreshToken);
+            _context.SaveChanges();
         }
 
-        public async Task DeleteAsync(RefreshToken refreshToken)
+        public void Delete(RefreshToken refreshToken)
         {
             _context.RefreshTokens.Remove(refreshToken);
+            _context.SaveChanges();
         }
 
-        public async Task<RefreshToken> GetByUserIdAsync(int userId)
+        public RefreshToken? GetByUserId(int userId)
         {
-            return await _context.RefreshTokens.FirstOrDefaultAsync(rt => rt.UserId == userId);
+            return _context.RefreshTokens.FirstOrDefault(rt => rt.UserId == userId);
         }
     }
 }

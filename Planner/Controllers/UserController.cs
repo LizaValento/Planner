@@ -19,7 +19,7 @@ namespace Presentation.Controllers
         [HttpPost]
         public async Task<ActionResult> AddUser(UserModel user)
         {
-            _userUseCase.AddAsync(user);
+            _userUseCase.Add(user);
             return RedirectToAction("Index");
         }
 

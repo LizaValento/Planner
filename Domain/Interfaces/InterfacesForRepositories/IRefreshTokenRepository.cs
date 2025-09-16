@@ -4,11 +4,11 @@ namespace Domain.Interfaces.InterfacesForRepositories
 {
     public interface IRefreshTokenRepository
     {
-        Task<RefreshToken> GetByTokenAsync(string token);
+        RefreshToken? GetByToken(string token);
+        IEnumerable<RefreshToken> GetAll();
         void Add(RefreshToken refreshToken);
         void Update(RefreshToken refreshToken);
-        Task DeleteAsync(RefreshToken refreshToken);
-        Task<IEnumerable<RefreshToken>> GetAllAsync();
-        Task<RefreshToken> GetByUserIdAsync(int userId);
+        void Delete(RefreshToken refreshToken);
+        RefreshToken? GetByUserId(int userId);
     }
 }

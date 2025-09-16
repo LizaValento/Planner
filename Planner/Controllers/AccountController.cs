@@ -61,11 +61,11 @@ namespace Presentation.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Refresh([FromBody] string refreshToken)
+        public IActionResult Refresh([FromBody] string refreshToken)
         {
             try
             {
-                var tokenModel = await _tokenUseCase.RefreshToken(refreshToken, HttpContext); 
+                var tokenModel = _tokenUseCase.RefreshToken(refreshToken, HttpContext);
                 return Ok(tokenModel);
             }
             catch (UnauthorizedAccessException ex)
